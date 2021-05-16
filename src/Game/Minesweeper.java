@@ -33,9 +33,9 @@ final class Minesweeper extends JFrame implements ActionListener, ContainerListe
         super("Minesweeper");					// SetJudul
         setLocation(400, 300);					// Set Location Default
 
-        setic();							// Set Icon
+    
         setpanel(1, 0, 0, 0);					// Set Level Game yang mempengaruhi ukuran
-        setmanue();							// Tambah Menu
+
 
         sw = new Stopwatch();			// Tambah Stopwatch
 
