@@ -102,8 +102,8 @@ final class Minesweeper extends JFrame implements ActionListener, ContainerListe
         }
 
         savedblockr = blockr;	// Memasukkan Jumlah baris ke saved jika ingin mereset
-        savedblockc = blockc;	// sama
-        savednum_of_mine = num_of_mine; // sama
+        savedblockc = blockc;	// untuk kolom
+        savednum_of_mine = num_of_mine; // untuk bom
 
         setSize(fw, fh);										// Set Tinggi dan Lebar
         setResizable(false);									// Tidak bisa diubah
