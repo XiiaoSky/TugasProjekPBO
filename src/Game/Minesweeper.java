@@ -364,4 +364,107 @@ final class Minesweeper extends JFrame implements ActionListener, ContainerListe
         }
     }
         
-        
+        public void showvalue(MouseEvent e) {
+        for (int i = 0; i < blockr; i++) {
+            OUTER:
+            for (int j = 0; j < blockc; j++) {
+                if (e.getSource() == blocks[i][j]) { // mendapatkan kordeinat yang dipilih
+                    if (e.isMetaDown() == false) { 
+                        if (blocks[i][j].getIcon() == ic[10]) { //  memberi icon bomb
+                            if (detectedmine < num_of_mine) { // jika bomb yang terdeteksi lebih kurang dari jumlah bomb
+                                detectedmine++; // menambah bomb
+                            }
+                          //  tf_mine.setText("" + detectedmine);
+                        }
+                        switch (countmine[i][j]) {
+                            case -1: //Jika  Bomb
+                                for (int k = 0; k < blockr; k++) { //perulangan baris
+                                    for (int l = 0; l < blockc; l++) { //perulangan kolom
+                                        if (countmine[k][l] == -1) { // jika area yang diklik  bomb
+                                            
+                                            //blocks[k][l].setText("X"); 
+                                            //blocks[k][l].setIcon(ic[9]);
+                                            //blocks[k][l].setBackground(Color.BLUE);
+                                            //blocks[k][l].setFont(new Font("",Font.CENTER_BASELINE,8));
+                                            blocks[k][l].removeMouseListener(mh); // menghilangkan efek dilik
+                                        }
+                                        blocks[k][l].removeMouseListener(mh); 
+                                    }
+                                }   //sw.stop();
+                                reset.setIcon(ic[12]); // mengubah wajah reset
+                                JOptionPane.showMessageDialog(null, "Game Over, Wanna try again?"); //memberikan dialog
+                                break;
+                            case 0:
+                                dfs(i, j); // mengacak area disekitar klik jika tidak ada game
+                                break;
+                            default:
+                                //blocks[i][j].setIcon(ic[countmine[i][j]]);
+                                //blocks[i][j].setText(""+countmine[i][j]);
+                                //blocks[i][j].setBackground(Color.pink);
+                                //blocks[i][j].setFont(new Font("",Font.PLAIN,8));
+                                //colour[i][j] = 'b';
+                                //blocks[i][j].setBackground(Color.pink);
+                                break OUTER;
+                        }
+                    } else {
+                        if (detectedmine != 0) { // jika bomb sudah habis
+                            if (blocks[i][j].getIcon() == null) {
+                                detectedmine--;
+                                blocks[i][j].setIcon(ic[10]);
+                            }
+                            tf_mine.setText("" + detectedmine);
+                        }
+                    }
+                }
+            }
+        }
+
+    }
+
+   
+
+    public void dfs(int row, int col) {
+
+        int R, C;
+        colour[row][col] = 'b'; //memberiwarna
+
+        blocks[row][col].setBackground(Color.GRAY); //memberiwarna
+
+       // blocks[row][col].setIcon(ic[countmine[row][col]]);
+        //blocks[row][col].setText("");
+        for (int i = 0; i < 8; i++) { //mengacak area disekitar klik
+            R = row + r[i];
+            C = col + c[i];
+            if (R >= 0 && R < blockr && C >= 0 && C < blockc && colour[R][C] == 'w') {
+                if (countmine[R][C] == 0) {
+                    dfs(R, C);
+                } else {
+                    blocks[R][C].setIcon(ic[countmine[R][C]]);
+                    //blocks[R][C].setText(""+countmine[R][C]);
+
+                    //blocks[R][C].setBackground(Color.pink);
+                    //blocks[R][C].setFont(new Font("",Font.BOLD,));
+                    colour[R][C] = 'b';
+
+                }
+            }
+
+
+        }
+    }
+
+   
+    public void setic() {
+        String name;
+
+        for (int i = 0; i <= 8; i++) {
+            name = i + ".gif";
+            ic[i] = new ImageIcon(name);
+        }
+        ic[9] = new ImageIcon("mine.gif");
+        ic[10] = new ImageIcon("flag.gif");
+        ic[11] = new ImageIcon("new game.gif");
+        ic[12] = new ImageIcon("crape.gif");
+    }
+
+}
