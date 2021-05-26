@@ -176,3 +176,192 @@ final class Minesweeper extends JFrame implements ActionListener, ContainerListe
     }
 
 }
+
+     public void setmenu() {
+        JMenuBar bar = new JMenuBar(); // Membuat Menu Bar
+
+        JMenu game = new JMenu("GAME"); // Membuat Jmenu dengan judul " game
+
+        JMenuItem menuitem = new JMenuItem("new game"); // Menu Pertama new game
+        final JCheckBoxMenuItem beginner = new JCheckBoxMenuItem("Begineer"); // Membuat Item Pertama Mode Beginner
+        final JCheckBoxMenuItem medium = new JCheckBoxMenuItem("Medium"); // Membuat Kedua Mode Medium
+        final JCheckBoxMenuItem expart = new JCheckBoxMenuItem("Expert"); // Membuat Ketiga Mode Expert
+
+        final JMenuItem exit = new JMenuItem("Exit"); // Membuat Menu Exit
+        final JMenu help = new JMenu("Help"); // Membuat Menu Help
+        final JMenuItem helpitem = new JMenuItem("Help"); // Membuat item help ketika diklik
+
+        ButtonGroup status = new ButtonGroup(); // Membuat Button Group
+
+        menuitem.addActionListener( // Ketika Menu Diklik
+                new ActionListener() {
+
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+
+                        //panelb.removeAll();
+                        //reset();
+                        setpanel(1, 0, 0, 0);
+                        //panelb.revalidate();
+                        //panelb.repaint();
+                    }
+                });
+
+        beginner.addActionListener(  // Ketika klik mode beginner
+                new ActionListener() {
+
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        panelb.removeAll();
+                        reset();
+                        setpanel(1, 0, 0, 0); // setpanel dengan paramter level 1
+                        panelb.revalidate();
+                        panelb.repaint();
+                        beginner.setSelected(true);
+                        savedlevel = 1;
+                    }
+                });
+        medium.addActionListener(
+                new ActionListener() {
+
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        panelb.removeAll();
+                        reset();
+                        setpanel(2, 0, 0, 0);  // setpanel dengan paramter level 2
+                        panelb.revalidate();
+                        panelb.repaint();
+                        medium.setSelected(true);
+                        savedlevel = 2;
+                    }
+                });
+        expart.addActionListener(
+                new ActionListener() {
+
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        panelb.removeAll();
+                        reset();
+                        setpanel(3, 0, 0, 0);  // setpanel dengan paramter level 3
+                        panelb.revalidate();
+                        panelb.repaint();
+                        expart.setSelected(true);
+                        savedlevel = 3;
+                    }
+                });
+
+      
+        exit.addActionListener(new ActionListener() { // Keluar Dari Game
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.exit(0);
+            }
+        });
+
+        helpitem.addActionListener(new ActionListener() { // Help Menu
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JOptionPane.showMessageDialog(null, "instruction");
+
+            }
+        });
+
+        setJMenuBar(bar);  
+
+        status.add(beginner); // Menambahkan element
+        status.add(medium);
+        status.add(expart);
+        
+
+        game.add(menuitem);
+        game.addSeparator();
+        game.add(beginner);
+        game.add(medium);
+        game.add(expart);
+       
+        game.addSeparator();
+        game.add(exit);
+        help.add(helpitem);
+
+        bar.add(game);
+        bar.add(help);
+
+    }
+
+ @Override
+    public void componentAdded(ContainerEvent ce) {
+    }
+
+    @Override
+    public void componentRemoved(ContainerEvent ce) {
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent ae) {
+    }
+    
+      class MouseHendeler extends MouseAdapter {
+
+        @Override
+        public void mouseClicked(MouseEvent me) {
+            if (check == true) { // Mengecek Apakah game sudah dimulai apa belum, true berarti belum
+                for (int i = 0; i < blockr; i++) { // perulangan baris
+                    for (int j = 0; j < blockc; j++) { // perulangan kolom
+                        if (me.getSource() == blocks[i][j]) { // Mengarah ke kordinat yang diklik mouse
+                            var1 = i; // memasukkan kordinat x(i) ke var1
+                            var2 = j; // memasukkan krodinat y(j) ke var2
+                            i = blockr; // memasukkan baris ke i
+                            break;
+                        }
+                    }
+                }
+
+                setmine(); // fungsi memasang bomb
+                check = false;
+
+            }
+
+           showvalue(me);
+            //winner();
+
+            if (starttime == false) {
+                //sw.Start();
+                starttime = true;
+            }
+
+        }
+    }
+      
+        public void setmine() {
+        int row = 0, col = 0; // memulai dari x = 0  dan y 0
+        Boolean[][] flag = new Boolean[blockr][blockc]; // memberi tanda bomb
+
+
+        for (int i = 0; i < blockr; i++) {
+            for (int j = 0; j < blockc; j++) {
+                flag[i][j] = true;
+                countmine[i][j] = 0;
+            } // Mengosongkan semua bomb
+        }
+
+        flag[var1][var2] = false; // mengosongkan bomb pada area yang diklik
+        colour[var1][var2] = 'b'; // memberi warna abu
+
+        for (int i = 0; i < num_of_mine; i++) { 
+            row = ranr.nextInt(blockr); // mengacak baris yang ingin diberi bomb
+            col = ranc.nextInt(blockc); // mengacak kolom yang ingin diberi bomb
+
+            if (flag[row][col] == true) { // jika kordinat yang ditunjuk masi belum di "sentuh"
+
+                countmine[row][col] = -1; // memberi bomb
+                colour[row][col] = 'b';
+                flag[row][col] = false; // memberi tahu sudah disentuh
+            } else {
+                i--; // mengulang kembali agar perulangan sesuai hingga max jumlah bomb
+            }
+        }
+    }
+        
+        
