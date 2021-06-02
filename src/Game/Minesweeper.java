@@ -25,7 +25,7 @@ final class Minesweeper extends JFrame implements ActionListener, ContainerListe
     Random ranc = new Random();
     boolean check = true, starttime = false;
     Point framelocation;
-    Stopwatch sw;								// Fungsi StopWatch
+   Stopwatch sw;								// Fungsi StopWatch
     MouseHendeler mh;							// Fungsi Action Ketika mouse diklik
     Point p;									// Menyimpan Lokasi
 
@@ -33,9 +33,9 @@ final class Minesweeper extends JFrame implements ActionListener, ContainerListe
         super("Minesweeper");					// SetJudul
         setLocation(400, 300);					// Set Location Default
 
-    
+        setic();							// Set Icon
         setpanel(1, 0, 0, 0);					// Set Level Game yang mempengaruhi ukuran
-
+        setmenu();							// Tambah Menu
 
         sw = new Stopwatch();			// Tambah Stopwatch
 
@@ -44,7 +44,7 @@ final class Minesweeper extends JFrame implements ActionListener, ContainerListe
             @Override
             public void actionPerformed(ActionEvent ae) {
                 try {
-                    // sw.stop();	// Stopwatch Stop
+                    sw.stop();	// Stopwatch Stop
                     setpanel(savedlevel, savedblockr, savedblockc, savednum_of_mine);	// Set Level Terakhir
                 } catch (Exception ex) {
                     setpanel(savedlevel, savedblockr, savedblockc, savednum_of_mine);	// Set Level Terakhir
@@ -102,8 +102,8 @@ final class Minesweeper extends JFrame implements ActionListener, ContainerListe
         }
 
         savedblockr = blockr;	// Memasukkan Jumlah baris ke saved jika ingin mereset
-        savedblockc = blockc;	// untuk kolom
-        savednum_of_mine = num_of_mine; // untuk bom
+        savedblockc = blockc;	// sama
+        savednum_of_mine = num_of_mine; // sama
 
         setSize(fw, fh);										// Set Tinggi dan Lebar
         setResizable(false);									// Tidak bisa diubah
@@ -174,9 +174,7 @@ final class Minesweeper extends JFrame implements ActionListener, ContainerListe
         getContentPane().add(panelmt, BorderLayout.NORTH);		// meletakkan menu di atas
         setVisible(true);										// membuat visible
     }
-
-}
-
+    
      public void setmenu() {
         JMenuBar bar = new JMenuBar(); // Membuat Menu Bar
 
@@ -319,15 +317,16 @@ final class Minesweeper extends JFrame implements ActionListener, ContainerListe
                 }
 
                 setmine(); // fungsi memasang bomb
+               calculation();
                 check = false;
 
             }
 
            showvalue(me);
-            //winner();
+            winner();
 
             if (starttime == false) {
-                //sw.Start();
+                sw.Start();
                 starttime = true;
             }
 
@@ -364,6 +363,7 @@ final class Minesweeper extends JFrame implements ActionListener, ContainerListe
         }
     }
         
+        
         public void showvalue(MouseEvent e) {
         for (int i = 0; i < blockr; i++) {
             OUTER:
@@ -374,7 +374,7 @@ final class Minesweeper extends JFrame implements ActionListener, ContainerListe
                             if (detectedmine < num_of_mine) { // jika bomb yang terdeteksi lebih kurang dari jumlah bomb
                                 detectedmine++; // menambah bomb
                             }
-                          //  tf_mine.setText("" + detectedmine);
+                           tf_mine.setText("" + detectedmine);
                         }
                         switch (countmine[i][j]) {
                             case -1: //Jika  Bomb
@@ -382,15 +382,15 @@ final class Minesweeper extends JFrame implements ActionListener, ContainerListe
                                     for (int l = 0; l < blockc; l++) { //perulangan kolom
                                         if (countmine[k][l] == -1) { // jika area yang diklik  bomb
                                             
-                                            //blocks[k][l].setText("X"); 
-                                            //blocks[k][l].setIcon(ic[9]);
-                                            //blocks[k][l].setBackground(Color.BLUE);
-                                            //blocks[k][l].setFont(new Font("",Font.CENTER_BASELINE,8));
+                                            blocks[k][l].setText("X"); 
+                                            blocks[k][l].setIcon(ic[9]);
+                                            blocks[k][l].setBackground(Color.BLUE);
+                                            blocks[k][l].setFont(new Font("",Font.CENTER_BASELINE,8));
                                             blocks[k][l].removeMouseListener(mh); // menghilangkan efek dilik
                                         }
                                         blocks[k][l].removeMouseListener(mh); 
                                     }
-                                }   //sw.stop();
+                                }   sw.stop();
                                 reset.setIcon(ic[12]); // mengubah wajah reset
                                 JOptionPane.showMessageDialog(null, "Game Over, Wanna try again?"); //memberikan dialog
                                 break;
@@ -398,11 +398,11 @@ final class Minesweeper extends JFrame implements ActionListener, ContainerListe
                                 dfs(i, j); // mengacak area disekitar klik jika tidak ada game
                                 break;
                             default:
-                                //blocks[i][j].setIcon(ic[countmine[i][j]]);
+                                blocks[i][j].setIcon(ic[countmine[i][j]]);
                                 //blocks[i][j].setText(""+countmine[i][j]);
                                 //blocks[i][j].setBackground(Color.pink);
                                 //blocks[i][j].setFont(new Font("",Font.PLAIN,8));
-                                //colour[i][j] = 'b';
+                                colour[i][j] = 'b';
                                 //blocks[i][j].setBackground(Color.pink);
                                 break OUTER;
                         }
@@ -432,11 +432,11 @@ final class Minesweeper extends JFrame implements ActionListener, ContainerListe
 
        // blocks[row][col].setIcon(ic[countmine[row][col]]);
         //blocks[row][col].setText("");
-        for (int i = 0; i < 8; i++) { //mengacak area disekitar klik
-            R = row + r[i];
+        for (int i = 0; i < 8; i++) { //mengacak area disekitar klik dan memberi angka sesuai "Count Mine"
+            R = row + r[i]; 
             C = col + c[i];
             if (R >= 0 && R < blockr && C >= 0 && C < blockc && colour[R][C] == 'w') {
-                if (countmine[R][C] == 0) {
+                if (countmine[R][C] == 0) { // Jika yang diklik Kosong (tidak ada angka)
                     dfs(R, C);
                 } else {
                     blocks[R][C].setIcon(ic[countmine[R][C]]);
@@ -466,5 +466,111 @@ final class Minesweeper extends JFrame implements ActionListener, ContainerListe
         ic[11] = new ImageIcon("new game.gif");
         ic[12] = new ImageIcon("crape.gif");
     }
+    
+     public void winner() {
+        int q = 0;
+        for (int k = 0; k < blockr; k++) {
+            for (int l = 0; l < blockc; l++) {
+                if (colour[k][l] == 'w') {
+                    q = 1;
+                }
+            }
+        }
+     }
+     
+     public class Stopwatch extends JFrame implements Runnable {
 
-}
+        long startTime;
+        //final static java.text.SimpleDateFormat timerFormat = new java.text.SimpleDateFormat("mm : ss :SSS");
+        //final JButton startStopButton= new JButton("Start/stop");
+        Thread updater;
+        boolean isRunning = false;
+        long a = 0;
+        Runnable displayUpdater;
+
+        public Stopwatch() {
+            this.displayUpdater = new Runnable() {
+                
+                @Override
+                public void run() {
+                    displayElapsedTime(a); //update waktu timer
+                    a++;
+                }
+            };
+        }
+
+        public void stop() {
+            long elapsed = a; // memasukkan nilai ke elapsed
+            isRunning = false;
+            try {
+                updater.join();
+            } catch (InterruptedException ie) {
+            }
+            displayElapsedTime(elapsed); //set waktu timer
+            a = 0; // mereset kembali
+        }
+
+        private void displayElapsedTime(long elapsedTime) { //memasukkan angka ke timer
+
+            if (elapsedTime >= 0 && elapsedTime < 9) {
+                tf_time.setText("00" + elapsedTime);
+            } else if (elapsedTime > 9 && elapsedTime < 99) {
+                tf_time.setText("0" + elapsedTime);
+            } else if (elapsedTime > 99 && elapsedTime < 999) {
+                tf_time.setText("" + elapsedTime);
+            }
+        }
+
+        @Override
+        public void run() { //ketika timer berjalan menggunakan fungsi ini
+            try {
+                while (isRunning) {
+                    SwingUtilities.invokeAndWait(displayUpdater); // menggunakan fungsi dari pc
+                    Thread.sleep(1000); // setara dengan 1 detik
+                }
+            } catch (java.lang.reflect.InvocationTargetException ite) {
+                ite.printStackTrace(System.err);
+            } catch (InterruptedException ie) {
+            }
+        }
+
+        public void Start() {
+            startTime = System.currentTimeMillis(); 
+            isRunning = true;
+            updater = new Thread(this);
+            updater.start();
+        }
+    }
+
+    
+     public void calculation() {
+        int row, column;
+
+        for (int i = 0; i < blockr; i++) {
+            for (int j = 0; j < blockc; j++) {
+                int value = 0;
+                int R, C;
+                row = i;
+                column = j;
+                if (countmine[row][column] != -1) { // Jika yang diklik bukan bomb maka akan mengacak
+                    for (int k = 0; k < 8; k++) {
+                        R = row + r[k];
+                        C = column + c[k];
+
+                        if (R >= 0 && C >= 0 && R < blockr && C < blockc) {
+                            if (countmine[R][C] == -1) { //Jika disekitar ada bomb maka akan memberi value 1 atau 2 dikotak tersebut
+                                value++;
+                            }
+
+                        }
+
+                    }
+                    countmine[row][column] = value; //memasukkan angka ke kotak
+
+                }
+            }
+        }
+    }
+
+    }
+        
