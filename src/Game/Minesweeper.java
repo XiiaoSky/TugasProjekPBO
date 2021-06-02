@@ -455,7 +455,7 @@ final class Minesweeper extends JFrame implements ActionListener, ContainerListe
         ic[12] = new ImageIcon("crape.gif");
     }
     
-        public void winner() {
+    public void winner() {
         int q = 0;
         for (int k = 0; k < blockr; k++) {
             for (int l = 0; l < blockc; l++) {
