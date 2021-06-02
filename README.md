@@ -1,8 +1,8 @@
 # TugasProjekPBO
 
-Nama Projek : Game 2D Minesweeper
+Project Name : Game 2D Minesweeper
 
-Kelas : Pemrograman Berorientasi Objek (E)
+Class : Pemrograman Berorientasi Objek (E)
 
 Developed by :
 - Athaya Firdy Aryaputra as "XiiaoSky" (2005551141)
