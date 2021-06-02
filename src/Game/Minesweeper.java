@@ -90,13 +90,6 @@ final class Minesweeper extends JFrame implements ActionListener, ContainerListe
                 blockc = 21;
                 num_of_mine = 150;
                 break;
-            case 4:
-                fw = (20 * setc);
-                fh = (24 * setr);
-                blockr = setr;
-                blockc = setc;
-                num_of_mine = setm;
-                break;
             default:
                 break;
         }
@@ -277,8 +270,7 @@ final class Minesweeper extends JFrame implements ActionListener, ContainerListe
         game.addSeparator();
         game.add(beginner);
         game.add(medium);
-        game.add(expart);
-       
+        game.add(expart);     
         game.addSeparator();
         game.add(exit);
         help.add(helpitem);
@@ -381,11 +373,7 @@ final class Minesweeper extends JFrame implements ActionListener, ContainerListe
                                 for (int k = 0; k < blockr; k++) { //perulangan baris
                                     for (int l = 0; l < blockc; l++) { //perulangan kolom
                                         if (countmine[k][l] == -1) { // jika area yang diklik  bomb
-                                            
-                                            blocks[k][l].setText("X"); 
                                             blocks[k][l].setIcon(ic[9]);
-                                            blocks[k][l].setBackground(Color.BLUE);
-                                            blocks[k][l].setFont(new Font("",Font.CENTER_BASELINE,8));
                                             blocks[k][l].removeMouseListener(mh); // menghilangkan efek dilik
                                         }
                                         blocks[k][l].removeMouseListener(mh); 
