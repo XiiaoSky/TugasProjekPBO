@@ -1,11 +1,18 @@
 package Game;
 
-
 import java.awt.*;
 import java.awt.Dimension;
 import javax.swing.*;
 import java.awt.event.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.table.DefaultTableModel;
 
 final class Minesweeper extends JFrame implements ActionListener, ContainerListener {
 
@@ -28,11 +35,20 @@ final class Minesweeper extends JFrame implements ActionListener, ContainerListe
    Stopwatch sw;								// Fungsi StopWatch
     MouseHendeler mh;							// Fungsi Action Ketika mouse diklik
     Point p;									// Menyimpan Lokasi
-
+     public String name = JOptionPane.showInputDialog("Masukan Nama Anda!");
+     long time;
+     int statuspermainan;
+      Connection koneksi;
+            Statement statement;
+             int jmlData=0;
+            
+      String data[][];
+     
     Minesweeper() {
         super("Minesweeper");					// SetJudul
+        
         setLocation(400, 300);					// Set Location Default
-
+        
         setic();							// Set Icon
         setpanel(1, 0, 0, 0);					// Set Level Game yang mempengaruhi ukuran
         setmenu();							// Tambah Menu
@@ -55,6 +71,36 @@ final class Minesweeper extends JFrame implements ActionListener, ContainerListe
         });
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         show();
+    }
+    
+    public void ModelSQL(String name,long time,int status) 
+    {
+        
+       String JDBC_DRIVER = "com.mysql.jdbc.Driver";
+          String DB_URL = "jdbc:mysql://localhost/minesweeper";
+           String USER = "root";
+            String PASS = "";
+           
+    
+        try {
+            Class.forName(JDBC_DRIVER);
+             koneksi = (Connection) DriverManager.getConnection(DB_URL, USER, PASS);
+        } catch (ClassNotFoundException|SQLException ex) {
+            Logger.getLogger(Minesweeper.class.getName()).log(Level.SEVERE, null, ex);
+            System.out.print(ex.getMessage());
+        }
+      
+            
+            
+        try{
+            String input = "INSERT into history(nama,waktu,status,tanggal_permainan) VALUES ('"+name+"','"+time+"','"+status+"',NOW())";
+            statement = (Statement) koneksi.createStatement();
+              statement.execute(input);  
+            } 
+         catch (SQLException ex) {
+             System.out.println(ex.getMessage());
+       }
+            
     }
 
     public void reset() {
@@ -89,6 +135,13 @@ final class Minesweeper extends JFrame implements ActionListener, ContainerListe
                 blockr = 21;
                 blockc = 21;
                 num_of_mine = 150;
+                break;
+            case 4:
+                fw = (20 * setc);
+                fh = (24 * setr);
+                blockr = setr;
+                blockc = setc;
+                num_of_mine = setm;
                 break;
             default:
                 break;
@@ -182,19 +235,32 @@ final class Minesweeper extends JFrame implements ActionListener, ContainerListe
         final JMenu help = new JMenu("Help"); // Membuat Menu Help
         final JMenuItem helpitem = new JMenuItem("Help"); // Membuat item help ketika diklik
 
+        final JMenuItem history = new JMenuItem("History");
+        
         ButtonGroup status = new ButtonGroup(); // Membuat Button Group
 
+        
+        history.addActionListener(
+                new ActionListener(){
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                data= new String[getjumlahhistory()][4];
+               jmlData=0;
+         
+               data=gethistory();
+               showhistory();
+            }
+                    
+                }
+        );
+        
         menuitem.addActionListener( // Ketika Menu Diklik
                 new ActionListener() {
 
                     @Override
                     public void actionPerformed(ActionEvent e) {
-
-                        //panelb.removeAll();
-                        //reset();
+                        name = JOptionPane.showInputDialog("Masukan Nama Anda!");
                         setpanel(1, 0, 0, 0);
-                        //panelb.revalidate();
-                        //panelb.repaint();
                     }
                 });
 
@@ -203,6 +269,8 @@ final class Minesweeper extends JFrame implements ActionListener, ContainerListe
 
                     @Override
                     public void actionPerformed(ActionEvent e) {
+                        
+                        name = JOptionPane.showInputDialog("Masukan Nama Anda!");
                         panelb.removeAll();
                         reset();
                         setpanel(1, 0, 0, 0); // setpanel dengan paramter level 1
@@ -210,6 +278,8 @@ final class Minesweeper extends JFrame implements ActionListener, ContainerListe
                         panelb.repaint();
                         beginner.setSelected(true);
                         savedlevel = 1;
+                        name = JOptionPane.showInputDialog("Masukan Nama Anda!");
+                        
                     }
                 });
         medium.addActionListener(
@@ -217,6 +287,8 @@ final class Minesweeper extends JFrame implements ActionListener, ContainerListe
 
                     @Override
                     public void actionPerformed(ActionEvent e) {
+                        
+                        name = JOptionPane.showInputDialog("Masukan Nama Anda!");
                         panelb.removeAll();
                         reset();
                         setpanel(2, 0, 0, 0);  // setpanel dengan paramter level 2
@@ -224,6 +296,7 @@ final class Minesweeper extends JFrame implements ActionListener, ContainerListe
                         panelb.repaint();
                         medium.setSelected(true);
                         savedlevel = 2;
+                        name = JOptionPane.showInputDialog("Masukan Nama Anda!");
                     }
                 });
         expart.addActionListener(
@@ -238,6 +311,7 @@ final class Minesweeper extends JFrame implements ActionListener, ContainerListe
                         panelb.repaint();
                         expart.setSelected(true);
                         savedlevel = 3;
+                        name = JOptionPane.showInputDialog("Masukan Nama Anda!");
                     }
                 });
 
@@ -265,18 +339,22 @@ final class Minesweeper extends JFrame implements ActionListener, ContainerListe
         status.add(medium);
         status.add(expart);
         
+        
 
         game.add(menuitem);
         game.addSeparator();
         game.add(beginner);
         game.add(medium);
-        game.add(expart);     
+        game.add(expart);
+       
         game.addSeparator();
         game.add(exit);
         help.add(helpitem);
 
         bar.add(game);
         bar.add(help);
+        bar.add(history);
+        
 
     }
 
@@ -311,11 +389,12 @@ final class Minesweeper extends JFrame implements ActionListener, ContainerListe
                 setmine(); // fungsi memasang bomb
                calculation();
                 check = false;
-
+                                  
             }
 
            showvalue(me);
             winner();
+            
 
             if (starttime == false) {
                 sw.Start();
@@ -373,6 +452,7 @@ final class Minesweeper extends JFrame implements ActionListener, ContainerListe
                                 for (int k = 0; k < blockr; k++) { //perulangan baris
                                     for (int l = 0; l < blockc; l++) { //perulangan kolom
                                         if (countmine[k][l] == -1) { // jika area yang diklik  bomb
+                                            
                                             blocks[k][l].setIcon(ic[9]);
                                             blocks[k][l].removeMouseListener(mh); // menghilangkan efek dilik
                                         }
@@ -381,17 +461,18 @@ final class Minesweeper extends JFrame implements ActionListener, ContainerListe
                                 }   sw.stop();
                                 reset.setIcon(ic[12]); // mengubah wajah reset
                                 JOptionPane.showMessageDialog(null, "Game Over, Wanna try again?"); //memberikan dialog
+                                 statuspermainan=0;
+                                data = new String[getjumlahhistory()][4];
+                                 ModelSQL(name,time,statuspermainan);
+                               
+                                
                                 break;
                             case 0:
                                 dfs(i, j); // mengacak area disekitar klik jika tidak ada game
                                 break;
                             default:
                                 blocks[i][j].setIcon(ic[countmine[i][j]]);
-                                //blocks[i][j].setText(""+countmine[i][j]);
-                                //blocks[i][j].setBackground(Color.pink);
-                                //blocks[i][j].setFont(new Font("",Font.PLAIN,8));
                                 colour[i][j] = 'b';
-                                //blocks[i][j].setBackground(Color.pink);
                                 break OUTER;
                         }
                     } else {
@@ -418,8 +499,6 @@ final class Minesweeper extends JFrame implements ActionListener, ContainerListe
 
         blocks[row][col].setBackground(Color.GRAY); //memberiwarna
 
-       // blocks[row][col].setIcon(ic[countmine[row][col]]);
-        //blocks[row][col].setText("");
         for (int i = 0; i < 8; i++) { //mengacak area disekitar klik dan memberi angka sesuai "Count Mine"
             R = row + r[i]; 
             C = col + c[i];
@@ -428,10 +507,7 @@ final class Minesweeper extends JFrame implements ActionListener, ContainerListe
                     dfs(R, C);
                 } else {
                     blocks[R][C].setIcon(ic[countmine[R][C]]);
-                    //blocks[R][C].setText(""+countmine[R][C]);
 
-                    //blocks[R][C].setBackground(Color.pink);
-                    //blocks[R][C].setFont(new Font("",Font.BOLD,));
                     colour[R][C] = 'b';
 
                 }
@@ -455,7 +531,7 @@ final class Minesweeper extends JFrame implements ActionListener, ContainerListe
         ic[12] = new ImageIcon("crape.gif");
     }
     
-    public void winner() {
+     public void winner() {
         int q = 0;
         for (int k = 0; k < blockr; k++) {
             for (int l = 0; l < blockc; l++) {
@@ -464,9 +540,8 @@ final class Minesweeper extends JFrame implements ActionListener, ContainerListe
                 }
             }
         }
-
-
-        if (q == 0) {
+        
+          if (q == 0) { 
             //panelb.hide();
             for (int k = 0; k < blockr; k++) {
                 for (int l = 0; l < blockc; l++) {
@@ -475,15 +550,19 @@ final class Minesweeper extends JFrame implements ActionListener, ContainerListe
             }
 
             sw.stop();
+             statuspermainan=1;
+            ModelSQL(name,time,statuspermainan);
+              data= new String[getjumlahhistory()][4];
             JOptionPane.showMessageDialog(this, "You Are Amazing");
+          
+              
+          
         }
-    }
+     }
      
      public class Stopwatch extends JFrame implements Runnable {
 
         long startTime;
-        //final static java.text.SimpleDateFormat timerFormat = new java.text.SimpleDateFormat("mm : ss :SSS");
-        //final JButton startStopButton= new JButton("Start/stop");
         Thread updater;
         boolean isRunning = false;
         long a = 0;
@@ -496,6 +575,7 @@ final class Minesweeper extends JFrame implements ActionListener, ContainerListe
                 public void run() {
                     displayElapsedTime(a); //update waktu timer
                     a++;
+                    time=a;
                 }
             };
         }
@@ -572,6 +652,135 @@ final class Minesweeper extends JFrame implements ActionListener, ContainerListe
             }
         }
     }
-
-    }
+     
+     
+      public void showhistory()  
+    {
         
+        setSize(400,500);
+        remove(panelb);
+      
+        panelmt.removeAll();
+        reset();
+          
+                         panelmt.revalidate();
+                        panelmt.repaint();
+                  
+                         //Table
+    JTable tabel;
+    DefaultTableModel dtm;
+    JScrollPane scrollPane;
+    Object namaKolom[] = {"Nama","Waktu","Status","Tanggal"};
+    
+    //Button Menu
+
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
+
+        //Kembali
+
+        dtm = new DefaultTableModel(namaKolom, 0);
+        tabel = new JTable(dtm);
+        scrollPane = new JScrollPane(tabel);
+        //Header
+   
+        //Tabel
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);  
+        
+        panelmt.add(scrollPane);
+       
+           tabel.setModel(new JTable(data, namaKolom).getModel());
+
+        }
+      
+       public String[][] gethistory()
+      {
+
+       try {
+
+           String query = "Select * from history where status=1 order by waktu ASC";
+           ResultSet resultSet = statement.executeQuery(query);
+           while (resultSet.next()){
+              
+               data[jmlData][0] = resultSet.getString("nama"); //harus sesuai nama kolom di mysql
+               data[jmlData][1] = resultSet.getString("waktu");
+               data[jmlData][2] = resultSet.getString("status");
+               data[jmlData][3] = resultSet.getString("tanggal_permainan");
+            
+              
+               if("0".equals(resultSet.getString("status")))
+               {
+                   data[jmlData][2] = "Kalah";
+               }
+               
+               else if("1".equals(resultSet.getString("status")))
+                       {
+                         data[jmlData][2] = "Menang";
+                       }
+               
+               jmlData++;
+           }
+           
+            query = "Select * from history where status =0";
+            resultSet = statement.executeQuery(query);
+           while (resultSet.next()){
+              
+               data[jmlData][0] = resultSet.getString("nama"); //harus sesuai nama kolom di mysql
+               data[jmlData][1] = resultSet.getString("waktu");
+               data[jmlData][2] = resultSet.getString("status");
+               data[jmlData][3] = resultSet.getString("tanggal_permainan");
+            
+              
+               if("0".equals(resultSet.getString("status")))
+               {
+                   data[jmlData][2] = "Kalah";
+               }
+               
+               else if("1".equals(resultSet.getString("status")))
+                       {
+                         data[jmlData][2] = "Menang";
+                       }
+               
+               jmlData++;
+           }
+           
+           
+           return data;
+       } catch (SQLException ex) {
+           System.out.println(ex.getMessage());
+       }
+       return data;
+      }
+       
+   
+             public int getjumlahhistory()
+        {
+            String JDBC_DRIVER = "com.mysql.jdbc.Driver";
+          String DB_URL = "jdbc:mysql://localhost/minesweeper";
+           String USER = "root";
+            String PASS = "";
+           
+    
+        try {
+            Class.forName(JDBC_DRIVER);
+             koneksi = (Connection) DriverManager.getConnection(DB_URL, USER, PASS);
+        } catch (ClassNotFoundException|SQLException ex) {
+            Logger.getLogger(Minesweeper.class.getName()).log(Level.SEVERE, null, ex);
+            System.out.print(ex.getMessage());
+        }
+        
+            int jumlah=0;
+       try {
+           
+           String cek = "select count(*) as jumlah from history ";
+           statement = (Statement) koneksi.createStatement();
+           ResultSet hasil = statement.executeQuery(cek);
+           hasil.next();
+           jumlah=hasil.getInt("jumlah");
+           return jumlah;
+       } catch (SQLException ex) {
+           System.out.println(ex.getMessage());
+       }
+          return  jumlah;
+        }
+      
+}
